@@ -19,7 +19,7 @@
         :disabled="disableDialog"
         :errorMsg="tableNameError"
       />
-      <div v-if="!isJson && !isNdJson" class="chars">
+      <div v-if="!isJson && !isNdJson && !isXlsx" class="chars">
         <delimiter-selector
           v-model="delimiter"
           width="210px"
@@ -53,7 +53,7 @@
         />
       </div>
       <check-box
-        v-if="!isJson && !isNdJson"
+        v-if="!isJson && !isNdJson && !isXlsx"
         :init="header"
         label="Use first row as column headers"
         :disabled="disableDialog"
@@ -101,6 +101,7 @@
 
 <script>
 import csv from '@/lib/csv'
+import xlsx from '@/lib/xlsx'
 import CloseIcon from '@/components/svg/close'
 import TextField from '@/components/TextField'
 import DelimiterSelector from './DelimiterSelector'
@@ -145,13 +146,19 @@ export default {
   },
   computed: {
     isJson() {
-      return fIo.isJSON(this.file)
+      return this.file && fIo.isJSON(this.file)
     },
     isNdJson() {
-      return fIo.isNDJSON(this.file)
+      return this.file && fIo.isNDJSON(this.file)
+    },
+    isXlsx() {
+      return this.file && fIo.isXLSX(this.file)
     },
     typeName() {
-      return this.isJson || this.isNdJson ? 'JSON' : 'CSV'
+      if (!this.file) return ''
+      if (this.isJson || this.isNdJson) return 'JSON'
+      if (this.isXlsx) return 'XLSX'
+      return 'CSV'
     }
   },
   watch: {
@@ -193,10 +200,10 @@ export default {
       }
     },
     reset() {
-      this.header = !this.isJson && !this.isNdJson
+      this.header = !this.isJson && !this.isNdJson && !this.isXlsx
       this.quoteChar = '"'
       this.escapeChar = '"'
-      this.delimiter = !this.isJson && !this.isNdJson ? '' : '\u001E'
+      this.delimiter = !this.isJson && !this.isNdJson && !this.isXlsx ? '' : '\u001E'
       this.tableName = ''
       this.disableDialog = false
       this.disableImport = false
@@ -222,13 +229,18 @@ export default {
         escapeChar: this.escapeChar,
         header: this.header,
         delimiter: this.delimiter,
-        columns: !this.isJson && !this.isNdJson ? null : ['doc']
+        columns: !this.isJson && !this.isNdJson && !this.isXlsx ? null : ['doc']
       }
       try {
         const start = new Date()
-        const parseResult = this.isJson
-          ? await this.getJsonParseResult(this.file)
-          : await csv.parse(this.file, config)
+        let parseResult
+        if (this.isJson) {
+          parseResult = await this.getJsonParseResult(this.file)
+        } else if (this.isXlsx) {
+          parseResult = await xlsx.parse(this.file, config)
+        } else {
+          parseResult = await csv.parse(this.file, config)
+        }
         const end = new Date()
         this.previewData = parseResult.data
         this.previewData.rowCount = parseResult.rowCount
@@ -286,7 +298,7 @@ export default {
         escapeChar: this.escapeChar,
         header: this.header,
         delimiter: this.delimiter,
-        columns: !this.isJson && !this.isNdJson ? null : ['doc']
+        columns: !this.isJson && !this.isNdJson && !this.isXlsx ? null : ['doc']
       }
       let parsingMsg = {}
       this.importMessages.push({
@@ -309,10 +321,14 @@ export default {
 
       try {
         let start = new Date()
-        const parseResult = this.isJson
-          ? await this.getJsonParseResult(file)
-          : await csv.parse(this.file, config)
-
+        let parseResult
+        if (this.isJson) {
+          parseResult = await this.getJsonParseResult(file)
+        } else if (this.isXlsx) {
+          parseResult = await xlsx.parse(this.file, config)
+        } else {
+          parseResult = await csv.parse(this.file, config)
+        }
         let end = new Date()
 
         if (!parseResult.hasErrors) {

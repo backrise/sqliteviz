@@ -1,15 +1,16 @@
 export default {
   isJSON(file) {
-    return file && file.type === 'application/json'
+    return file && file.name && file.name.endsWith('.json')
   },
   isNDJSON(file) {
-    return file && file.name.endsWith('.ndjson')
+    return file && file.name && file.name.endsWith('.ndjson')
   },
   isDatabase(file) {
-    const dbTypes = ['application/vnd.sqlite3', 'application/x-sqlite3']
-    return file.type
-      ? dbTypes.includes(file.type)
-      : /\.(db|sqlite(3)?)+$/.test(file.name)
+    return file && file.name && (
+      file.name.endsWith('.db') || 
+      file.name.endsWith('.sqlite') || 
+      file.name.endsWith('.sqlite3')
+    )
   },
 
   getFileName(file) {
@@ -88,5 +89,9 @@ export default {
       }
       fileReader.readAsArrayBuffer(file)
     })
+  },
+
+  isXLSX(file) {
+    return file && file.name && file.name.endsWith('.xlsx')
   }
 }

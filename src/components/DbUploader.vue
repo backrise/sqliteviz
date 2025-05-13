@@ -10,7 +10,7 @@
         @click="browse"
       >
         <div class="text">
-          Drop the database, CSV, JSON or NDJSON file here or click to choose a
+          Drop the database, CSV, JSON, NDJSON or XLSX file here or click to choose a
           file from your computer.
         </div>
       </div>
@@ -149,7 +149,7 @@ export default {
     },
     browse() {
       fIo
-        .getFileFromUser('.db,.sqlite,.sqlite3,.csv,.json,.ndjson')
+        .getFileFromUser('.db,.sqlite,.sqlite3,.csv,.json,.ndjson,.xlsx')
         .then(this.checkFile)
     },
 
