@@ -418,17 +418,27 @@ export default {
       events.send('inquiry.create', null, { auto: true })
     },
     getQueryExample() {
-      return this.isNdJson
-        ? this.getNdJsonQueryExample()
-        : this.isJson
-          ? this.getJsonQueryExample()
-          : [
-              '/*',
-              ` * Your CSV file has been imported into ${this.addedTable} table.`,
-              ' * You can run this SQL query to make all CSV records available for charting.',
-              ' */',
-              `SELECT * FROM "${this.addedTable}"`
-            ].join('\n')
+      if (this.isNdJson) {
+        return this.getNdJsonQueryExample();
+      } else if (this.isJson) {
+        return this.getJsonQueryExample();
+      } else if (this.isXlsx) {
+        return [
+          '/*',
+          ` * Your XLSX file has been imported into ${this.addedTable} table.`,
+          ' * You can run this SQL query to make all XLSX records available for charting.',
+          ' */',
+          `SELECT * FROM "${this.addedTable}"`
+        ].join('\n');
+      } else {
+        return [
+          '/*',
+          ` * Your CSV file has been imported into ${this.addedTable} table.`,
+          ' * You can run this SQL query to make all CSV records available for charting.',
+          ' */',
+          `SELECT * FROM "${this.addedTable}"`
+        ].join('\n');
+      }
     },
     getNdJsonQueryExample() {
       try {

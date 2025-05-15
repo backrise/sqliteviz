@@ -13,6 +13,21 @@ export default {
     )
   },
 
+  // 文件类型过滤器常量
+  FILTERS: {
+    CSV: '.csv',
+    JSON: '.json',
+    NDJSON: '.ndjson',
+    XLSX: '.xlsx',
+    DATABASE: '.db,.sqlite,.sqlite3',
+    get DATA_FILES() {
+      return `${this.CSV},${this.JSON},${this.NDJSON},${this.XLSX}`
+    },
+    get ALL_FILES() {
+      return `${this.DATA_FILES},${this.DATABASE}`
+    }
+  },
+
   getFileName(file) {
     return file.name.replace(/\.[^.]+$/, '')
   },

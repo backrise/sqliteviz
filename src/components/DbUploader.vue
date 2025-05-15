@@ -149,7 +149,7 @@ export default {
     },
     browse() {
       fIo
-        .getFileFromUser('.db,.sqlite,.sqlite3,.csv,.json,.ndjson,.xlsx')
+        .getFileFromUser(fIo.FILTERS.ALL_FILES)
         .then(this.checkFile)
     },
 

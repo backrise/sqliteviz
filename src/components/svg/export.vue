@@ -46,7 +46,7 @@ export default {
 <style scoped>
 .icon {
   display: block;
-  margin: 0 12px;
+  margin: 0;
   cursor: pointer;
 }
 

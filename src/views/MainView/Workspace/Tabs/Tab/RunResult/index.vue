@@ -47,6 +47,15 @@
       </icon-button>
 
       <icon-button
+        :disabled="!result"
+        tooltip="Export result set to XLSX file"
+        tooltipPosition="top-left"
+        @click="exportToXlsx"
+      >
+        <export-to-xlsx-icon />
+      </icon-button>
+
+      <icon-button
         ref="copyToClipboardBtn"
         :disabled="!result"
         tooltip="Copy result set to clipboard"
@@ -141,11 +150,13 @@ import LoadingIndicator from '@/components/LoadingIndicator'
 import SideToolBar from '../SideToolBar'
 import Splitpanes from '@/components/Splitpanes'
 import ExportToCsvIcon from '@/components/svg/exportToCsv'
+import ExportToXlsxIcon from '@/components/svg/exportToXlsx'
 import ClipboardIcon from '@/components/svg/clipboard'
 import ViewCellValueIcon from '@/components/svg/viewCellValue'
 import RowIcon from '@/components/svg/row'
 import IconButton from '@/components/IconButton'
 import csv from '@/lib/csv'
+import xlsx from '@/lib/xlsx'
 import fIo from '@/lib/utils/fileIo'
 import cIo from '@/lib/utils/clipboardIo'
 import time from '@/lib/utils/time'
@@ -162,6 +173,7 @@ export default {
     Logs,
     SideToolBar,
     ExportToCsvIcon,
+    ExportToXlsxIcon,
     IconButton,
     ClipboardIcon,
     ViewCellValueIcon,
@@ -251,6 +263,20 @@ export default {
       }
 
       fIo.exportToFile(csv.serialize(this.result), 'result_set.csv', 'text/csv')
+    },
+
+    exportToXlsx() {
+      if (this.result && this.result.values) {
+        events.send(
+          'resultset.export',
+          this.result.values[this.result.columns[0]].length,
+          { to: 'xlsx' }
+        )
+      }
+
+      const blob = xlsx.serialize(this.result)
+      const url = URL.createObjectURL(blob)
+      fIo.downloadFromUrl(url, 'result_set.xlsx')
     },
 
     async prepareCopy() {

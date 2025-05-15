@@ -11,6 +11,7 @@
       <db-uploader id="db-edit" type="small" />
       <export-icon tooltip="Export database" @click="exportToFile" />
       <add-table-icon @click="addCsvJson" />
+      <generate-ddl-icon @click="showGenerateDdl" />
     </div>
     <div v-show="schemaVisible" class="schema">
       <table-description
@@ -28,6 +29,13 @@
       :db="$store.state.db"
       dialogName="addCsvJson"
     />
+    
+    <!--Generate DDL dialog  -->
+    <generate-ddl-dialog
+      ref="generateDdl"
+      :db="$store.state.db"
+      dialogName="generateDdl"
+    />
   </div>
 </template>
 
@@ -40,7 +48,9 @@ import TreeChevron from '@/components/svg/treeChevron'
 import DbUploader from '@/components/DbUploader'
 import ExportIcon from '@/components/svg/export'
 import AddTableIcon from '@/components/svg/addTable'
+import GenerateDdlIcon from '@/components/svg/generateDdl'
 import CsvJsonImport from '@/components/CsvJsonImport'
+import GenerateDdlDialog from '@/components/GenerateDdlDialog'
 
 export default {
   name: 'Schema',
@@ -51,7 +61,9 @@ export default {
     DbUploader,
     ExportIcon,
     AddTableIcon,
-    CsvJsonImport
+    GenerateDdlIcon,
+    CsvJsonImport,
+    GenerateDdlDialog
   },
   data() {
     return {
@@ -82,7 +94,7 @@ export default {
       this.$store.state.db.export(`${this.dbName}.sqlite`)
     },
     async addCsvJson() {
-      this.file = await fIo.getFileFromUser('.csv,.json,.ndjson')
+      this.file = await fIo.getFileFromUser(fIo.FILTERS.DATA_FILES)
       await this.$nextTick()
       const csvJsonImportModal = this.$refs.addCsvJson
       csvJsonImportModal.reset()
@@ -90,10 +102,18 @@ export default {
       csvJsonImportModal.open()
 
       const isJson = fIo.isJSON(this.file) || fIo.isNDJSON(this.file)
+      const isXlsx = fIo.isXLSX(this.file)
       events.send('database.import', this.file.size, {
-        from: isJson ? 'json' : 'csv',
+        from: isJson ? 'json' : (isXlsx ? 'xlsx' : 'csv'),
         new_db: false
       })
+    },
+    showGenerateDdl() {
+      if (this.$store.state.db && this.$store.state.db.schema && this.$store.state.db.schema.length > 0) {
+        this.$refs.generateDdl.open()
+      } else {
+        alert('No tables found in the database.')
+      }
     }
   }
 }
@@ -131,6 +151,7 @@ export default {
   align-items: center;
   margin-top: -5px;
   padding: 0 12px;
+  gap: 8px;
 }
 
 .db-name {

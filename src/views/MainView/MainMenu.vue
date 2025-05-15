@@ -9,6 +9,11 @@
       <a href="https://sqliteviz.com/docs" target="_blank">Help</a>
     </div>
     <div id="nav-buttons">
+      <table-uploader
+        v-if="$store.state.db"
+        id="import-table"
+        type="small"
+      />
       <button
         v-show="currentInquiry && $route.path === '/workspace'"
         id="save-btn"
@@ -54,6 +59,7 @@
 <script>
 import TextField from '@/components/TextField'
 import CloseIcon from '@/components/svg/close'
+import TableUploader from '@/components/TableUploader'
 import storedInquiries from '@/lib/storedInquiries'
 import AppDiagnosticInfo from './AppDiagnosticInfo'
 import events from '@/lib/utils/events'
@@ -64,6 +70,7 @@ export default {
   components: {
     TextField,
     CloseIcon,
+    TableUploader,
     AppDiagnosticInfo
   },
   data() {
@@ -239,6 +246,7 @@ button {
 
 #nav-buttons {
   display: flex;
+  align-items: center;
 }
 
 #nav-links {
@@ -247,5 +255,9 @@ button {
 }
 #nav-links img {
   width: 32px;
+}
+
+#import-table {
+  margin-right: 10px;
 }
 </style>

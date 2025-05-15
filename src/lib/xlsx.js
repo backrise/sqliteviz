@@ -186,5 +186,39 @@ export default {
       
       reader.readAsArrayBuffer(file)
     })
+  },
+  
+  serialize(result) {
+    if (!result || !result.values || !result.columns || result.columns.length === 0) {
+      return null
+    }
+    
+    // 创建工作表数据
+    const wsData = []
+    
+    // 添加表头行
+    wsData.push(result.columns)
+    
+    // 添加数据行
+    const rowCount = result.values[result.columns[0]].length
+    for (let i = 0; i < rowCount; i++) {
+      const row = []
+      for (const col of result.columns) {
+        row.push(result.values[col][i])
+      }
+      wsData.push(row)
+    }
+    
+    // 创建工作表
+    const ws = XLSX.utils.aoa_to_sheet(wsData)
+    
+    // 创建工作簿
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Query Result')
+    
+    // 生成xlsx文件
+    const xlsxData = XLSX.write(wb, { type: 'array', bookType: 'xlsx' })
+    
+    return new Blob([xlsxData], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
   }
 } 

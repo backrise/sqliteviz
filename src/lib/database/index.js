@@ -135,9 +135,9 @@ class Database {
       throw new Error("Table name can't start with sqlite_")
     }
 
-    if (/[^\w]/.test(name)) {
+    if (/[\s"'();,\.\/\\<>?!@#$%^&*+=]/.test(name)) {
       throw new Error(
-        'Table name can contain only letters, digits and underscores'
+        'Table name cannot contain spaces and special characters such as " \' () ; , . / \\ < > ? ! @ # $ % ^ & * + ='
       )
     }
 
@@ -150,7 +150,7 @@ class Database {
 
   sanitizeTableName(tabName) {
     return tabName
-      .replace(/[^\w]/g, '_') // replace everything that is not letter, digit or _  with _
+      .replace(/[\s"'();,\.\/\\<>?!@#$%^&*+=]/g, '_') // replace only disallowed special characters
       .replace(/^(\d)/, '_$1') // add _ at beginning if starts with digit
       .replace(/_{2,}/g, '_') // replace multiple _ with one _
   }
